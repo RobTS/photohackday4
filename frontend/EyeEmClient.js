@@ -7,6 +7,29 @@ function EyeEmClient(key) {
     this.access_token = key;
 }
 
+EyeEmClient.prototype.fetchPictures2 = function (lat, lng) {
+    var qs = {
+        access_token: this.access_token,
+        limit: 30,
+        latitude: lat,
+        longitude: lng,
+        q : "nature"
+    };
+    return new Promise(function (resolve, reject) {
+        request({url: 'https://api.eyeem.com/v2/search/photos', qs: qs, json: true},
+            function (err, res) {
+                if (err)
+                    reject(err);
+                else {
+                    console.log(res.body.photos.items[0]);
+                    var nr = Math.floor(res.body.photos.items.length * Math.random())
+                    resolve(res.body.photos.items[0])
+                }
+
+            })
+    });
+
+};
 EyeEmClient.prototype.fetchPictures = function (lat, lng) {
     var qs = {
         access_token: this.access_token,
@@ -27,6 +50,5 @@ EyeEmClient.prototype.fetchPictures = function (lat, lng) {
     });
 
 };
-
 
 module.exports = EyeEmClient;
