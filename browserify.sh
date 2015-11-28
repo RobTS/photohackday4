@@ -1,0 +1,1 @@
+watchify ./frontend/main.js -o ./gen/bundle.js
