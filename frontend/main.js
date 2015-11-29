@@ -10,34 +10,36 @@ var lat = 53, lng = 12;
 
 var map = new Map(lat, lng);
 
-$(document).ready(function(){
-    $('.button').click(function(){
+$(document).ready(function () {
+    $('.button').click(function () {
         $('#fade-wrapper').fadeIn();
     });
-    $('#fade-wrapper').click(function(){
+    $('#fade-wrapper').click(function () {
         $(this).fadeOut();
     });
 });
 
 var fullScreenPic = function (photo) {
-    $('#image-container').attr("src",photo.photoUrl);
+    $('#image-container').attr("src", photo.photoUrl);
     $('#fade-wrapper').fadeIn(1000);
     $('#fade-wrapper').click(function () {
         $(this).fadeOut();
-        $('#image-container').attr("src","");
+        $('#image-container').attr("src", "");
     });
     console.log(photo);
     $("#caption").text(photo.caption);
-    $("#description").text(photo.title);
+    $("#description").text(photo.title+" "+photo.latitude+", "+photo.longitude);
     $("#webUrl").attr("href", photo.webUrl);
+    $("#location").text(photo.latitude+", "+photo.longitude);
+    $("#location").attr("href", "http://www.google.com/maps/place/"+photo.latitude+","+photo.longitude);
 
 };
 
 var addPicture = function (loc, offset) {
     var coords = geohash.decode(loc);
-    client.fetchPictures(coords.latitude, coords.longitude)
+    return client.fetchPictures2(coords.latitude, coords.longitude)
         .then(function (pic) {
-            map.addPicture(loc, pic, function(url) {
+            map.addPicture(loc, pic, function (url) {
                 fullScreenPic(url);
             });
             //map.setCenter(loc);
@@ -89,13 +91,16 @@ var resetTimer = function () {
     sameSteps = 0;
     stepWidth = -1;
     changeIn = 2;
-    clearInterval(timer);
-    var timer = setInterval(function () {
-        i++;
-        nextField(i);
-        addPicture(pos, i);
-        if (i > 1000) clearInterval(timer);
-    }, 75);
+    i++;
+    anotherRound();
+
+};
+
+var anotherRound = function() {
+    nextField(i);
+    addPicture(pos, i).then(function() {
+        anotherRound();
+    })
 };
 
 var stopTimer = function () {
@@ -109,7 +114,7 @@ $("#slider").slider({
     value: 3
 });
 
-var click = function() {
+var click = function () {
     stopTimer();
     var val = $('#slider').slider("option", "value");
     map.clear();
@@ -122,7 +127,7 @@ var click = function() {
 click();
 
 $("#test").click(function () {
-   click();
+    click();
 });
 
 
